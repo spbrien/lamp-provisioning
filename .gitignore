@@ -27,6 +27,8 @@ dist/*
 *.dir
 data/*
 !data/.gitkeep
+filesystem/*
+!filesystem/.gitkeep
 
 # Project Specific Code
 backup_db.sh
