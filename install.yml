@@ -1,0 +1,10 @@
+---
+- hosts: database
+  become: yes
+  roles:
+  - role: wordpress_db
+
+- hosts: application
+  become: yes
+  roles:
+  - role: wordpress

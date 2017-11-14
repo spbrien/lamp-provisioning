@@ -10,6 +10,7 @@
   become: yes
   roles:
   - role: common
+  - role: SSL
   - role: apache
   - role: php
   - role: app_secure

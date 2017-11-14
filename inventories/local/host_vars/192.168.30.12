@@ -11,3 +11,4 @@ sites:
     - wordpress_admin_user: siteadmin
     - wordpress_admin_user_pass: test
     - wordpress_admin_email: sbrien@hlkagency.com
+    - SSL: False

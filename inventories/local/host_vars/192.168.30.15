@@ -1,0 +1,14 @@
+---
+sites:
+  test:
+    - domain: test4.dev
+    - wordpress_directory: /var/www/html/test4.dev
+    - wordpress_db_name: wordpress4
+    - wordpress_db_user: wordpress4
+    - wordpress_db_user_pass: test
+    - wordpress_home_url: test4.dev
+    - wordpress_site_title: Ansible Test4
+    - wordpress_admin_user: siteadmin
+    - wordpress_admin_user_pass: test
+    - wordpress_admin_email: sbrien@hlkagency.com
+    - SSL: False

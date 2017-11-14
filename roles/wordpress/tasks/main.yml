@@ -1,13 +1,4 @@
-- name: Download wp-cli
-  get_url:
-    url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-    dest: /usr/local/bin/wp
-
-- name: Install wp-cli
-  file:
-    path: /usr/local/bin/wp
-    mode: 0755
-
+---
 - name: Create WordPress database
   mysql_db: name="{{ wordpress_db_name }}"
             state=present
@@ -97,3 +88,40 @@
   file:
     path: "{{ wordpress_directory }}/index.html"
     state: absent
+
+- name: Wordpress Apache config
+  template: src=apache.conf dest=/etc/apache2/sites-available/{{domain}}.conf
+  tags:
+    - setup
+
+- name: Check existing certbot key
+  stat: path=/etc/letsencrypt/live/{{domain}}/privkey.pem
+  register: key_file
+  when: SSL
+
+- name: Ensure www directory exist
+  file:
+    state: directory
+    path: "{{ wordpress_directory }}"
+  when: SSL
+
+- name: Ask for a certificate from Lets Encrypt
+  shell: "yes | /opt/letsencrypt/certbot-auto certonly --agree-tos --webroot -w {{ wordpress_directory }} -d {{ domain }} --email {{ wordpress_admin_email }}"
+  when: (key_file.stat.islnk is not defined) and SSL
+
+
+- name: SSL Wordpress Apache config
+  template: src=apache-ssl.conf dest=/etc/apache2/sites-available/{{domain}}.conf
+  tags:
+    - setup
+  when: SSL
+
+- name: a2ensite {{ domain }}
+  command: a2ensite {{ domain }}
+  tags:
+    - setup
+
+- name: Restart Apache
+  service: name=apache2 state=restarted enabled=yes
+  tags:
+    - setup

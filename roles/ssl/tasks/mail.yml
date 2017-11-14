@@ -1,0 +1,12 @@
+---
+- name: Add Certbot repository
+  - apt_repository:
+      repo: 'ppa:certbot/certbot'
+
+- name: Install Certbot
+  apt: pkg={{item}} state=latest update_cache=yes
+  with_items:
+    - certbot
+  sudo: yes
+  tags:
+    - setup
