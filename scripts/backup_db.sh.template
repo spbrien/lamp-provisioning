@@ -1,0 +1,28 @@
+#! /bin/bash
+
+# NOTE: REPLACE USER AND PASSWORD WITH REAL CREDENTIALS
+
+# Create ssh tunnel to access the database
+ssh -f -o ExitOnForwardFailure=yes -L 3307:127.0.0.1:3306 23.99.199.84 sleep 10
+
+# Get a list of databases
+databases=`mysql -uUSER -pPASSWORD --host=127.0.0.1 --port=3307 -e "SHOW DATABASES;" | grep -Ev "(Database|information_schema|performance_schema)"`
+
+# Echo some stuff so we know what's going to happen
+echo ""
+echo "Backing Up:"
+echo ""
+echo "--------------------------"
+echo "$databases"
+echo "--------------------------"
+echo ""
+
+# Backup each database
+for db in $databases; do
+  echo ""
+  echo "starting $db..."
+  mysqldump -P 3307 -h 127.0.0.1 -uUSER -pPASSWORD --databases $db > "./data/$db.sql"
+  echo "$db backed up!"
+  echo ""
+  echo ""
+done

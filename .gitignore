@@ -28,10 +28,5 @@ dist/*
 data/*
 !data/.gitkeep
 
-# Configuration
-ansible/inventories/staging/*
-ansible/inventories/production/*
-!ansible/inventories/staging/.gitkeep
-!ansible/inventories/production/.gitkeep
-
 # Project Specific Code
+backup_db.sh
