@@ -1,0 +1,37 @@
+# Sytem
+.DS_Store
+*.pyc
+*.retry
+*.log
+venv
+env
+__pycache__
+.vagrant
+.imdone
+npm-debug.log
+.sass-cache
+migrations
+node_modules
+vendor
+dist/*
+!dist/.gitkeep
+
+
+# Database
+*.db
+*.sql
+*.sqlite
+*.rdb
+*.bak
+*.dat
+*.dir
+data/*
+!data/.gitkeep
+
+# Configuration
+ansible/inventories/staging/*
+ansible/inventories/production/*
+!ansible/inventories/staging/.gitkeep
+!ansible/inventories/production/.gitkeep
+
+# Project Specific Code

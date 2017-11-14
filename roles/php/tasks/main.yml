@@ -1,0 +1,16 @@
+- name: Install PHP
+  apt: pkg={{item}} state=latest update_cache=yes
+  with_items:
+    - php
+    - libapache2-mod-php
+    - php-mcrypt
+    - php-mysql
+    - php-cli
+    - php-curl
+    - php-gd
+    - php-mbstring
+    - php-xml
+    - php-xmlrpc
+  sudo: yes
+  tags:
+    - setup

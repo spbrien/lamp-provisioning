@@ -1,0 +1,50 @@
+- name: Install MySQL
+  apt: pkg={{item}} state=latest update_cache=yes
+  with_items:
+    - python-mysqldb
+    - mysql-server
+  sudo: yes
+  tags:
+    - setup
+
+- name: Update MySQL config
+  lineinfile:
+    dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+    regexp: '^bind-address[ \t]+=[ \t]+127.0.0.1'
+    line: 'bind-address            = 0.0.0.0'
+
+- name: Start the MySQL service
+  sudo: yes
+  service:
+    name: mysql
+    state: started
+    enabled: true
+  tags:
+    - setup
+
+- name: Update MySQL credentials
+  sudo: yes
+  mysql_user:
+    name: root
+    host: "{{ item }}"
+    password: "{{ mysql_root_password }}"
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    check_implicit_admin: yes
+    priv: "*.*:ALL,GRANT"
+  with_items:
+    - '%'
+    - 127.0.0.1
+    - ::1
+    - localhost
+  tags:
+    - setup
+
+- name: Restart the MySQL service
+  sudo: yes
+  service:
+    name: mysql
+    state: restarted
+    enabled: true
+  tags:
+    - setup

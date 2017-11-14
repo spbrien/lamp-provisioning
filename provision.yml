@@ -1,0 +1,15 @@
+---
+- hosts: database
+  become: yes
+  roles:
+  - role: common
+  - role: mysql
+  - role: db_secure
+
+- hosts: application
+  become: yes
+  roles:
+  - role: common
+  - role: apache
+  - role: php
+  - role: app_secure

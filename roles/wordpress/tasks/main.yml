@@ -1,0 +1,99 @@
+- name: Download wp-cli
+  get_url:
+    url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    dest: /usr/local/bin/wp
+
+- name: Install wp-cli
+  file:
+    path: /usr/local/bin/wp
+    mode: 0755
+
+- name: Create WordPress database
+  mysql_db: name="{{ wordpress_db_name }}"
+            state=present
+            login_user=root
+            login_password="{{ mysql_root_password }}"
+
+- name: Create WordPress DB user and grant permissions to WordPress DB
+  mysql_user: name="{{ wordpress_db_user }}"
+              password="{{ wordpress_db_user_pass }}"
+              priv="{{ wordpress_db_name }}.*:ALL"
+              state=present
+              login_user="root"
+              login_password="{{ mysql_root_password }}"
+
+- name: Is WordPress downloaded?
+  stat: path="{{ wordpress_directory }}/index.php"
+  register: wordpress_is_downloaded
+
+- debug:
+    msg: "Wordpress is not downloaded"
+  when: not wordpress_is_downloaded.stat.exists
+
+- name: Create WordPress directory
+  file: path="{{ wordpress_directory }}"
+        owner="{{ remote_deploy_user }}"
+        group="{{ remote_deploy_group }}"
+        mode=0755
+        state=directory
+  when: not wordpress_is_downloaded.stat.exists
+
+- name: Download WordPress
+  command: wp core download
+  args:
+      chdir: "{{ wordpress_directory }}"
+  become: yes
+  become_user: "{{ remote_deploy_user }}"
+  remote_user: "{{ remote_deploy_user }}"
+  when: not wordpress_is_downloaded.stat.exists
+
+- name: Is WordPress configured?
+  stat: path="{{ wordpress_directory }}/wp_config.php"
+  register: wordpress_is_configured
+
+- debug:
+    msg: "Wordpress is not configured"
+  when: not wordpress_is_configured.stat.exists
+
+- name: Configure WordPress
+  command: wp config create
+           --path="{{ wordpress_directory }}"
+           --dbname="{{ wordpress_db_name }}"
+           --dbuser="{{ wordpress_db_user }}"
+           --dbpass="{{ wordpress_db_user_pass }}"
+           --dbprefix="wp_"
+  become: yes
+  become_user: "{{ remote_deploy_user }}"
+  remote_user: "{{ remote_deploy_user }}"
+  when: not wordpress_is_configured.stat.exists
+
+
+- name: Is WordPress installed?
+  command: wp core is-installed
+  args:
+    chdir: "{{ wordpress_directory }}"
+  register: wordpress_is_installed
+  become: yes
+  become_user: "{{ remote_deploy_user }}"
+  remote_user: "{{ remote_deploy_user }}"
+  ignore_errors: True
+
+- name: Install WordPress
+  command: wp core install
+            --url="{{ wordpress_home_url }}"
+            --title="{{ wordpress_site_title }}"
+            --admin_user="{{ wordpress_admin_user }}"
+            --admin_password="{{ wordpress_admin_user_pass }}"
+            --admin_email="{{ wordpress_admin_email }}"
+            --path="{{ wordpress_directory }}"
+  args:
+      chdir: "{{ wordpress_directory }}"
+  when: wordpress_is_installed|failed
+  become: yes
+  become_user: "{{ remote_deploy_user }}"
+  remote_user: "{{ remote_deploy_user }}"
+
+- name: Remove index.html
+  file:
+    path: "{{ wordpress_directory }}/index.html"
+    state: absent

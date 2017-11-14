@@ -1,0 +1,17 @@
+- name: Install Apache
+  apt: pkg={{item}} state=latest update_cache=yes
+  with_items:
+    - apache2
+  sudo: yes
+  tags:
+    - setup
+
+- name: Enable rewrite module
+  command: a2enmod rewrite
+  tags:
+    - setup
+
+- name: Restart Apache
+  service: name=apache2 state=restarted enabled=yes
+  tags:
+    - setup

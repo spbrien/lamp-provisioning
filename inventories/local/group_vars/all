@@ -1,0 +1,6 @@
+---
+project_name: ansible-test
+ssh_user: vagrant
+remote_deploy_user: vagrant
+remote_deploy_group: www-data
+domain: ansible-test.dev
